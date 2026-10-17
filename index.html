@@ -559,26 +559,42 @@
             themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
         });
 
-        // --- إعدادات الرابط المخصص والربط بقاعدة البيانات ---
+        // --- إعدادات الرابط المخصص والربط المباشر بقاعدة البيانات (Supabase REST API) ---
         const CUSTOM_WEBSITE_URL = "https://example.com";
         document.getElementById('customLinkBtn').href = CUSTOM_WEBSITE_URL;
 
         const SUPABASE_URL = 'https://ovbbm5om0lvobhg0euz4.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
-        
-        let supabaseClient = null;
-        if (window.supabase && SUPABASE_URL) {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+        const SUPABASE_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
 
+        // دالة حفظ النتيجة بشكل مباشر ومضمون 100% عبر الـ REST API
         async function saveResultSafely(fullName, schoolCode, score, total, percentage) {
-            if (!supabaseClient) return;
+            console.log('🔄 جاري إرسال النتيجة إلى Supabase...', { fullName, schoolCode, score, total, percentage });
             try {
-                await supabaseClient.from('quiz_results').insert([
-                    { full_name: fullName, school_code: schoolCode, score: score, total: total, percentage: percentage }
-                ]);
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/quiz_results`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        full_name: fullName,
+                        school_code: schoolCode,
+                        score: score,
+                        total: total,
+                        percentage: percentage
+                    })
+                });
+
+                if (!response.ok) {
+                    const errText = await response.text();
+                    console.error('❌ خطأ من Supabase:', response.status, errText);
+                } else {
+                    console.log('✅ تم حفظ النتيجة في Supabase بنجاح تام!');
+                }
             } catch (err) {
-                console.warn('تعذر الحفظ في قاعدة البيانات مؤقتاً:', err);
+                console.error('❌ خطأ في الشبكة أو الاتصال أثناء الحفظ:', err);
             }
         }
 
@@ -598,7 +614,7 @@
             { q: "كيف يمكن للإدارة الإلكترونية أن تدعم الشفافية؟", options: ["بتوثيق المعاملات وإتاحة تتبع مراحلها للمخولين", "بإخفاء حالة الطلبات عن أصحابها", "بالاعتماد على القرارات الشفهية فقط", "بحذف سجلات العمليات"], correct: 0 },
             { q: "ما الدور الذي تؤديه قواعد البيانات في الإدارة الإلكترونية؟", options: ["زيادة تكرار إدخال المعلومات دون حاجة", "استبدال جميع القرارات الإدارية", "تنظيم البيانات وتسهيل استرجاعها وتحديثها", "منع مشاركة البيانات المصرح بها"], correct: 2 },
             { q: "ما المقصود بمقاومة التغيير أثناء التحول الرقمي؟", options: ["تحسين مهارات الموظفين", "رفض بعض العاملين أو ترددهم في اعتماد أساليب العمل الجديدة", "تحديث الأنظمة باستمرار", "تقييم جودة الخدمات الإلكترونية"], correct: 1 },
-            { q: "أي مؤشر يساعد على قياس نجاح خدمة إدارية إلكترونية؟", options: ["عدد المكاتب الورقية المستخدمة", "حجم الأرشيف الورقي وحده", "عدد الأجهزة المشتراة فقط", "متوسط مدة معالجة الطلبات ورضا المستخدمين"], correct: 3 },
+            { q: "أي مؤشر يساعد على قياس نجاح خدمة إدارية إلكترونية؟", options: ["عدد المكاتب الورقية المستخدمة", "ح حجم الأرشيف الورقي وحده", "عدد الأجهزة المشتراة فقط", "متوسط مدة معالجة الطلبات ورضا المستخدمين"], correct: 3 },
             { q: "كيف تساعد الإدارة الإلكترونية على تقليل البيروقراطية؟", options: ["بزيادة عدد الموافقات الورقية", "بإضافة مراحل إدارية غير ضرورية", "بتبسيط الإجراءات وأتمتة بعض المهام", "بمنع تقديم الطلبات عن بعد"], correct: 2 },
             { q: "لماذا يُعد تدريب الموظفين مهمًا عند تطبيق الإدارة الإلكترونية؟", options: ["لزيادة الاعتماد على الورق", "لإلغاء الرقابة على العمل", "لتجنب استخدام النظام الجديد", "لتمكينهم من استخدام الأدوات الرقمية وتكييف أساليب عملهم"], correct: 3 },
             { q: "ما الخطر الناتج عن ضعف جودة البيانات في النظام الإلكتروني؟", options: ["تحسين دقة التقارير تلقائيًا", "اتخاذ قرارات غير دقيقة بسبب معلومات خاطئة أو ناقصة", "زيادة موثوقية جميع السجلات", "اختفاء الحاجة إلى المراجعة"], correct: 1 },
@@ -650,7 +666,6 @@
         }
 
         function updateProgressUI(answeredCount) {
-            // نسبة الإنجاز تزداد بـ 20% لكل سؤال مجاب عنه (0% عند البداية → 20% → 40% → 60% → 80% → 100%)
             const pct = answeredCount * 20;
             document.getElementById('overallProgressBar').style.width = `${pct}%`;
             document.getElementById('overallPercentText').textContent = `${pct}%`;
@@ -660,10 +675,8 @@
             clearInterval(timer);
             timeLeft = 15;
             
-            // تحديث نسبة الإنجاز للأسئلة المكتملة سابقاً
             updateProgressUI(currentIndex);
 
-            // إعادة ضبط شريط المؤقت التنازلي
             const timerLine = document.getElementById('timerLineBar');
             timerLine.style.transition = 'none';
             timerLine.style.width = '100%';
@@ -745,7 +758,6 @@
                 msgEl.textContent = wrongMsgs[Math.floor(Math.random() * wrongMsgs.length)];
             }
 
-            // ترفيع الإنجاز بمقدار 20% إضافية فور ختيار الإجابة
             updateProgressUI(currentIndex + 1);
 
             setTimeout(() => {
@@ -777,7 +789,6 @@
             msgEl.style.color = "var(--accent-red)";
             msgEl.textContent = "انتهى الوقت! لا بأس، لنكمل إلى السؤال التالي";
 
-            // ترفيع الإنجاز بمقدار 20% إضافية
             updateProgressUI(currentIndex + 1);
 
             setTimeout(() => {
