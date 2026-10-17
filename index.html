@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            /* الوضع الداكن افتراضياً (طَبق الأصل من الصورة) */
+            /* الوضع الداكن افتراضياً */
             --bg-dark: #070a13;
             --bg-gradient: 
                 radial-gradient(circle at 50% 30%, rgba(0, 119, 255, 0.2) 0%, transparent 60%),
@@ -455,7 +455,7 @@
 <body>
 
     <header>
-        <a href="https://www.instagram.com/abderrafaaa/" id="customLinkBtn" class="custom-link-btn" target="_blank">اضغط هنا</a>
+        <a href="#" id="customLinkBtn" class="custom-link-btn" target="_blank">اضغط هنا</a>
         <div class="header-title">تحدي الإدارة الإلكترونية</div>
         <button class="theme-toggle" id="themeToggle" title="تغيير المظهر">☀️</button>
     </header>
@@ -559,16 +559,14 @@
             themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
         });
 
-        // --- إعدادات الرابط المخصص والربط المباشر بقاعدة البيانات (Supabase REST API) ---
-        const CUSTOM_WEBSITE_URL = "https://www.instagram.com/abderrafaaa/";
+        // --- إعدادات الرابط المخصص والربط بقاعدة البيانات الصحيحة ---
+        const CUSTOM_WEBSITE_URL = "https://example.com";
         document.getElementById('customLinkBtn').href = CUSTOM_WEBSITE_URL;
 
-        // استبدل هذا الرابط بالرابط المنسوخ من Project Settings -> API
-// --- إعدادات Supabase الصحيحة والجديدة لمشروعك ---
         const SUPABASE_URL = 'https://opajgeoskwyteyfnosjh.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
 
-        // دالة حفظ النتيجة باستخدام الرابط الصحيح 100%
+        // دالة حفظ النتيجة باستخدام الـ REST API المباشر والرابط الصحيح
         async function saveResultSafely(fullName, schoolCode, score, total, percentage) {
             console.log('🔄 جاري إرسال النتيجة إلى Supabase...', { fullName, schoolCode, score, total, percentage });
             try {
@@ -599,35 +597,6 @@
                 console.error('❌ خطأ في الشبكة أو الاتصال أثناء الحفظ:', err);
             }
         }
-        );
-
-        if (!response.ok) {
-            const errorText = await response.text();
-
-            console.error('Supabase Error:', {
-                status: response.status,
-                details: errorText
-            });
-
-            alert(
-                `فشل حفظ النتيجة.\n` +
-                `HTTP: ${response.status}\n` +
-                `التفاصيل: ${errorText}`
-            );
-
-            return false;
-        }
-
-        console.log('تم حفظ النتيجة بنجاح في Supabase.');
-        return true;
-
-    } catch (error) {
-        console.error('Network Error:', error);
-        alert('تعذر الاتصال بـ Supabase. افتح Console لمعرفة التفاصيل.');
-        return false;
-    }
-}
-
 
         // --- بنك الأسئلة المعتمد (20 سؤالاً) ---
         const questionBank = [
@@ -645,7 +614,7 @@
             { q: "كيف يمكن للإدارة الإلكترونية أن تدعم الشفافية؟", options: ["بتوثيق المعاملات وإتاحة تتبع مراحلها للمخولين", "بإخفاء حالة الطلبات عن أصحابها", "بالاعتماد على القرارات الشفهية فقط", "بحذف سجلات العمليات"], correct: 0 },
             { q: "ما الدور الذي تؤديه قواعد البيانات في الإدارة الإلكترونية؟", options: ["زيادة تكرار إدخال المعلومات دون حاجة", "استبدال جميع القرارات الإدارية", "تنظيم البيانات وتسهيل استرجاعها وتحديثها", "منع مشاركة البيانات المصرح بها"], correct: 2 },
             { q: "ما المقصود بمقاومة التغيير أثناء التحول الرقمي؟", options: ["تحسين مهارات الموظفين", "رفض بعض العاملين أو ترددهم في اعتماد أساليب العمل الجديدة", "تحديث الأنظمة باستمرار", "تقييم جودة الخدمات الإلكترونية"], correct: 1 },
-            { q: "أي مؤشر يساعد على قياس نجاح خدمة إدارية إلكترونية؟", options: ["عدد المكاتب الورقية المستخدمة", "ح حجم الأرشيف الورقي وحده", "عدد الأجهزة المشتراة فقط", "متوسط مدة معالجة الطلبات ورضا المستخدمين"], correct: 3 },
+            { q: "أي مؤشر يساعد على قياس نجاح خدمة إدارية إلكترونية؟", options: ["عدد المكاتب الورقية المستخدمة", "حجم الأرشيف الورقي وحده", "عدد الأجهزة المشتراة فقط", "متوسط مدة معالجة الطلبات ورضا المستخدمين"], correct: 3 },
             { q: "كيف تساعد الإدارة الإلكترونية على تقليل البيروقراطية؟", options: ["بزيادة عدد الموافقات الورقية", "بإضافة مراحل إدارية غير ضرورية", "بتبسيط الإجراءات وأتمتة بعض المهام", "بمنع تقديم الطلبات عن بعد"], correct: 2 },
             { q: "لماذا يُعد تدريب الموظفين مهمًا عند تطبيق الإدارة الإلكترونية؟", options: ["لزيادة الاعتماد على الورق", "لإلغاء الرقابة على العمل", "لتجنب استخدام النظام الجديد", "لتمكينهم من استخدام الأدوات الرقمية وتكييف أساليب عملهم"], correct: 3 },
             { q: "ما الخطر الناتج عن ضعف جودة البيانات في النظام الإلكتروني؟", options: ["تحسين دقة التقارير تلقائيًا", "اتخاذ قرارات غير دقيقة بسبب معلومات خاطئة أو ناقصة", "زيادة موثوقية جميع السجلات", "اختفاء الحاجة إلى المراجعة"], correct: 1 },
