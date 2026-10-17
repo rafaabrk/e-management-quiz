@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدّي التحول من الإدارة التقليدية إلى الإدارة الإلكترونية</title>
+    <!-- خط Cairo العربي -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- مكتبة Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            /* الوضع الداكن افتراضياً (طَبق الأصل من الصورة) */
+            --bg-dark: #070a13;
+            --bg-gradient: 
+                radial-gradient(circle at 50% 30%, rgba(0, 119, 255, 0.2) 0%, transparent 60%),
+                radial-gradient(circle at 15% 85%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%);
+            --card-glass: rgba(13, 20, 38, 0.72);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --card-highlight: rgba(255, 255, 255, 0.08);
+            --input-glass: rgba(255, 255, 255, 0.04);
+            --input-border: rgba(255, 255, 255, 0.15);
+            --text-white: #ffffff;
+            --text-muted: #94a3b8;
+            --accent-green: #10b981;
+            --accent-red: #f43f5e;
+            --btn-blue: linear-gradient(135deg, #0099ff 0%, #0055ff 100%);
+            --shadow-glow: 0 30px 60px rgba(0, 0, 0, 0.65);
+            --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* الوضع الفاتح الشفاف الشبيه بـ iOS Glassmorphism */
+        [data-theme="light"] {
+            --bg-dark: #edf6ff;
+            --bg-gradient: 
+                radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.25) 0%, transparent 60%),
+                radial-gradient(circle at 85% 85%, rgba(192, 132, 252, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 50%);
+            --card-glass: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.9);
+            --card-highlight: rgba(255, 255, 255, 0.5);
+            --input-glass: rgba(255, 255, 255, 0.8);
+            --input-border: rgba(2, 132, 199, 0.2);
+            --text-white: #0f172a;
+            --text-muted: #475569;
+            --accent-green: #059669;
+            --accent-red: #dc2626;
+            --btn-blue: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            --shadow-glow: 0 20px 50px rgba(2, 132, 199, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            background-image: var(--bg-gradient);
+            background-size: 150% 150%;
+            animation: pulseGradients 14s ease-in-out infinite alternate;
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        @keyframes pulseGradients {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        header {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            z-index: 10;
+        }
+
+        .custom-link-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: #38bdf8;
+            padding: 9px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: var(--transition);
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .custom-link-btn:hover {
+            background: #0099ff;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .header-title {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--text-white);
+            text-align: center;
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--card-border);
+            color: var(--text-white);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: var(--transition);
+            font-size: 18px;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.08);
+        }
+
+        /* البطاقة الزجاجية الغنية */
+        .glass-card {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-glass);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 45px 38px;
+            box-shadow: var(--shadow-glow);
+            margin: auto 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                115deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 45%,
+                rgba(255, 255, 255, 0.08) 50%,
+                transparent 55%
+            );
+            pointer-events: none;
+        }
+
+        .app-icon-box {
+            width: 68px;
+            height: 68px;
+            background: linear-gradient(135deg, #00aaff 0%, #0066ff 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px auto;
+            box-shadow: 0 12px 28px rgba(0, 119, 255, 0.4);
+        }
+
+        .app-icon-box svg {
+            width: 38px;
+            height: 38px;
+            fill: #ffffff;
+        }
+
+        h1 {
+            font-size: 25px;
+            font-weight: 900;
+            margin-bottom: 14px;
+            color: var(--text-white);
+            line-height: 1.4;
+        }
+
+        p.desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.65;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-white);
+            font-size: 14px;
+        }
+
+        label .req {
+            color: #ef4444;
+            margin-right: 3px;
+        }
+
+        .input-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-box svg {
+            position: absolute;
+            left: 18px;
+            width: 18px;
+            height: 18px;
+            fill: #64748b;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px 18px 15px 48px;
+            border-radius: 16px;
+            border: 1px solid var(--input-border);
+            background: var(--input-glass);
+            color: var(--text-white);
+            font-size: 15px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus {
+            border-color: #00aaff;
+            box-shadow: 0 0 20px rgba(0, 170, 255, 0.25);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 17px;
+            border-radius: 16px;
+            background: var(--btn-blue);
+            color: white;
+            border: none;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 12px 30px rgba(0, 102, 255, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(0, 102, 255, 0.5);
+        }
+
+        /* --- شريط مؤشر الإنجاز (20% لكل سؤال) --- */
+        .overall-progress-wrapper {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .overall-progress-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .overall-progress-track {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--input-border);
+        }
+
+        .overall-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            border-radius: 20px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        }
+
+        /* --- شريط مؤقت السؤال المتناقص --- */
+        .timer-line-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 22px;
+        }
+
+        .timer-line-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #00aaff, #0066ff);
+            border-radius: 10px;
+            transition: width 1s linear;
+        }
+
+        .quiz-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .timer-badge {
+            background: rgba(0, 170, 255, 0.15);
+            border: 1px solid rgba(0, 170, 255, 0.3);
+            color: #38bdf8;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .question-title {
+            font-size: 21px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: var(--text-white);
+            line-height: 1.5;
+            text-align: right;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .option-card {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--input-border);
+            background: var(--input-glass);
+            color: var(--text-white);
+            font-size: 15px;
+            text-align: right;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 700;
+        }
+
+        .option-card:hover:not(:disabled) {
+            background: rgba(0, 170, 255, 0.15);
+            border-color: #00aaff;
+            transform: translateX(-5px);
+        }
+
+        .option-card.correct {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #10b981 !important;
+            color: #10b981 !important;
+        }
+
+        [data-theme="dark"] .option-card.correct {
+            color: #6ee7b7 !important;
+        }
+
+        .option-card.wrong {
+            background: rgba(244, 63, 94, 0.25) !important;
+            border-color: #f43f5e !important;
+            color: #f43f5e !important;
+        }
+
+        [data-theme="dark"] .option-card.wrong {
+            color: #fca5a5 !important;
+        }
+
+        .feedback-banner {
+            text-align: center;
+            font-weight: 800;
+            font-size: 16px;
+            margin-top: 15px;
+            min-height: 26px;
+        }
+
+        .review-box {
+            background: var(--input-glass);
+            border: 1px solid var(--input-border);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+            text-align: right;
+        }
+
+        .review-q {
+            font-weight: 800;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: var(--text-white);
+        }
+
+        .review-a {
+            font-size: 14px;
+            margin: 4px 0;
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+
+        footer {
+            margin-top: 25px;
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-align: center;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" id="customLinkBtn" class="custom-link-btn" target="_blank">اضغط هنا</a>
+        <div class="header-title">تحدي الإدارة الإلكترونية</div>
+        <button class="theme-toggle" id="themeToggle" title="تغيير المظهر">☀️</button>
+    </header>
+
+    <div class="glass-card" id="appContainer">
+        
+        <!-- شاشة الترحيب -->
+        <div id="welcomeScreen">
+            <div class="app-icon-box">
+                <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+            </div>
+            <h1>تحدّي التحول من الإدارة التقليدية إلى الإدارة الإلكترونية</h1>
+            <p class="desc">اختبر معلوماتك ومهاراتك المفاهيمية حول مبادئ، متطلبات، وآليات التحول نحو الإدارة الإلكترونية.</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="fullName">الاسم واللقب الكامل <span class="req">*</span></label>
+                    <div class="input-box">
+                        <input type="text" id="fullName" required placeholder="أدخل اسمك الكامل هنا...">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="schoolCode">الرمز المدرسي <span class="req">*</span></label>
+                    <div class="input-box">
+                        <input type="text" id="schoolCode" required placeholder="أدخل الرمز المدرسي...">
+                        <svg viewBox="0 0 24 24"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">ابدأ الاختبار الآن ←</button>
+            </form>
+        </div>
+
+        <!-- شاشة الأسئلة -->
+        <div id="quizScreen" class="hidden">
+            <!-- شريط إنجاز المسابقة (0% إلى 100%) -->
+            <div class="overall-progress-wrapper">
+                <div class="overall-progress-title">
+                    <span>نسبة الإنجاز</span>
+                    <span id="overallPercentText">0%</span>
+                </div>
+                <div class="overall-progress-track">
+                    <div class="overall-progress-fill" id="overallProgressBar"></div>
+                </div>
+            </div>
+
+            <!-- شريط مؤقت السؤال المتناقص -->
+            <div class="timer-line-track">
+                <div class="timer-line-fill" id="timerLineBar"></div>
+            </div>
+            
+            <div class="quiz-meta">
+                <span id="questionCounter">السؤال 1 من 5</span>
+                <div class="timer-badge" id="timerBadge">15 ثانية</div>
+            </div>
+            
+            <div class="question-title" id="questionText">نص السؤال هنا...</div>
+            <div class="options-grid" id="optionsList"></div>
+            <div class="feedback-banner" id="feedbackBanner"></div>
+        </div>
+
+        <!-- شاشة النتيجة النهائية -->
+        <div id="resultScreen" class="hidden">
+            <div class="app-icon-box">
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            <h1>نتيجة الاختبار 🎯</h1>
+            <p class="desc">أحسنت صنعاً في إتمام الاختبار بنجاح!</p>
+            
+            <div style="background: rgba(0, 170, 255, 0.08); padding: 22px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 1px solid var(--input-border);">
+                <h3 id="finalScoreText" style="font-size: 26px; color: #38bdf8; margin-bottom: 6px;">الإجابات الصحيحة: 5 / 5</h3>
+                <p id="studentInfoDisplay" style="color: var(--text-muted); font-size: 14px; font-weight: 600;"></p>
+            </div>
+            
+            <h3 style="margin-bottom: 15px; font-size: 17px; text-align: right;">مراجعة الأسئلة:</h3>
+            <div id="reviewContainer" style="max-height: 280px; overflow-y: auto; padding-left: 5px; margin-bottom: 25px;"></div>
+            
+            <button class="btn-submit" id="restartBtn">إعادة الاختبار 🔄</button>
+        </div>
+
+    </div>
+
+    <footer>Made by Abderrafaa Dahmen 2026</footer>
+
+    <script>
+        // --- إدارة المظهر (Dark / Light Mode) ---
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlEl = document.documentElement;
+
+        const savedTheme = localStorage.getItem('quiz_theme') || 'dark';
+        htmlEl.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+        themeToggle.addEventListener('click', () => {
+            const current = htmlEl.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            htmlEl.setAttribute('data-theme', next);
+            localStorage.setItem('quiz_theme', next);
+            themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+
+        // --- إعدادات الرابط المخصص والربط بقاعدة البيانات ---
+        const CUSTOM_WEBSITE_URL = "https://example.com";
+        document.getElementById('customLinkBtn').href = CUSTOM_WEBSITE_URL;
+
+        const SUPABASE_URL = 'https://ovbbm5om0lvobhg0euz4.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
+        
+        let supabaseClient = null;
+        if (window.supabase && SUPABASE_URL) {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        async function saveResultSafely(fullName, schoolCode, score, total, percentage) {
+            if (!supabaseClient) return;
+            try {
+                await supabaseClient.from('quiz_results').insert([
+                    { full_name: fullName, school_code: schoolCode, score: score, total: total, percentage: percentage }
+                ]);
+            } catch (err) {
+                console.warn('تعذر الحفظ في قاعدة البيانات مؤقتاً:', err);
+            }
+        }
+
+        // --- بنك الأسئلة المعتمد (20 سؤالاً) ---
+        const questionBank = [
+            // السهلة (7)
+            { q: "ما المقصود بالإدارة الإلكترونية؟", options: ["الاعتماد على الأوراق في جميع المعاملات", "استخدام تكنولوجيا المعلومات والاتصالات لإنجاز الأعمال الإدارية", "إلغاء جميع الوظائف الإدارية", "استبدال المديرين بالأجهزة"], correct: 1 },
+            { q: "ما السمة الأكثر ارتباطًا بالإدارة التقليدية؟", options: ["الخدمات الرقمية", "التوقيع الإلكتروني", "الاعتماد الكبير على الوثائق الورقية", "المعالجة الآلية للبيانات"], correct: 2 },
+            { q: "ما الهدف الأساسي من التحول نحو الإدارة الإلكترونية؟", options: ["زيادة الإجراءات البيروقراطية", "تسريع الخدمات وتحسين الكفاءة", "زيادة استهلاك الورق", "تقليل الوصول إلى المعلومات"], correct: 1 },
+            { q: "ما المقصود برقمنة الوثائق الإدارية؟", options: ["إتلاف الوثائق مباشرة", "زيادة عدد النسخ الورقية", "تحويل الوثائق إلى صيغة رقمية", "نقل الوثائق بين المكاتب"], correct: 2 },
+            { q: "ما إحدى النتائج المتوقعة من تقليل المعاملات الورقية؟", options: ["زيادة مدة معالجة الطلبات", "زيادة الاعتماد على النقل اليدوي", "إلغاء الحاجة إلى تنظيم المعلومات", "تقليل استهلاك الورق وتسهيل الوصول إلى الوثائق"], correct: 3 },
+            { q: "ما الوسيلة الأكثر ارتباطًا بحفظ الملفات في الإدارة التقليدية؟", options: ["الحوسبة السحابية", "الأرشيف الورقي", "قاعدة البيانات الإلكترونية", "البوابة الرقمية"], correct: 1 },
+            { q: "ما الفائدة الأساسية من الأرشفة الإلكترونية؟", options: ["زيادة مساحة التخزين الورقي", "صعوبة البحث عن الوثائق", "تكرار إدخال المعلومات", "تسهيل حفظ الوثائق والبحث عنها واسترجاعها"], correct: 3 },
+            // المتوسطة (9)
+            { q: "أي عامل يُعد من أهم متطلبات نجاح التحول إلى الإدارة الإلكترونية؟", options: ["التمسك بالإجراءات القديمة مهما كانت", "تكوين الموظفين وتطوير البنية التكنولوجية", "منع تبادل البيانات بين المصالح", "الاستغناء عن التخطيط الإداري"], correct: 1 },
+            { q: "ما أحد أبرز التحديات التي تواجه تطبيق الإدارة الإلكترونية؟", options: ["انخفاض الحاجة إلى الورق", "سهولة الوصول إلى البيانات دائمًا", "اختفاء جميع الأخطاء الإدارية تلقائيًا", "مخاطر الأمن السيبراني ومقاومة التغيير"], correct: 3 },
+            { q: "كيف يمكن للإدارة الإلكترونية أن تدعم الشفافية؟", options: ["بتوثيق المعاملات وإتاحة تتبع مراحلها للمخولين", "بإخفاء حالة الطلبات عن أصحابها", "بالاعتماد على القرارات الشفهية فقط", "بحذف سجلات العمليات"], correct: 0 },
+            { q: "ما الدور الذي تؤديه قواعد البيانات في الإدارة الإلكترونية؟", options: ["زيادة تكرار إدخال المعلومات دون حاجة", "استبدال جميع القرارات الإدارية", "تنظيم البيانات وتسهيل استرجاعها وتحديثها", "منع مشاركة البيانات المصرح بها"], correct: 2 },
+            { q: "ما المقصود بمقاومة التغيير أثناء التحول الرقمي؟", options: ["تحسين مهارات الموظفين", "رفض بعض العاملين أو ترددهم في اعتماد أساليب العمل الجديدة", "تحديث الأنظمة باستمرار", "تقييم جودة الخدمات الإلكترونية"], correct: 1 },
+            { q: "أي مؤشر يساعد على قياس نجاح خدمة إدارية إلكترونية؟", options: ["عدد المكاتب الورقية المستخدمة", "حجم الأرشيف الورقي وحده", "عدد الأجهزة المشتراة فقط", "متوسط مدة معالجة الطلبات ورضا المستخدمين"], correct: 3 },
+            { q: "كيف تساعد الإدارة الإلكترونية على تقليل البيروقراطية؟", options: ["بزيادة عدد الموافقات الورقية", "بإضافة مراحل إدارية غير ضرورية", "بتبسيط الإجراءات وأتمتة بعض المهام", "بمنع تقديم الطلبات عن بعد"], correct: 2 },
+            { q: "لماذا يُعد تدريب الموظفين مهمًا عند تطبيق الإدارة الإلكترونية؟", options: ["لزيادة الاعتماد على الورق", "لإلغاء الرقابة على العمل", "لتجنب استخدام النظام الجديد", "لتمكينهم من استخدام الأدوات الرقمية وتكييف أساليب عملهم"], correct: 3 },
+            { q: "ما الخطر الناتج عن ضعف جودة البيانات في النظام الإلكتروني؟", options: ["تحسين دقة التقارير تلقائيًا", "اتخاذ قرارات غير دقيقة بسبب معلومات خاطئة أو ناقصة", "زيادة موثوقية جميع السجلات", "اختفاء الحاجة إلى المراجعة"], correct: 1 },
+            // الصعبة (4)
+            { q: "كيف ينبغي التعامل مع نظام إداري إلكتروني جديد يحتوي على بيانات شخصية حساسة؟", options: ["إتاحة جميع البيانات لجميع الموظفين", "تعطيل كلمات المرور لتسريع العمل", "تطبيق صلاحيات وصول محددة وتشفير البيانات ونسخها احتياطيًا", "نشر البيانات لتسهيل الشفافية"], correct: 2 },
+            { q: "أي تسلسل يعكس منهجية أكثر منطقية للتحول نحو الإدارة الإلكترونية؟", options: ["تشخيص الوضع الحالي، تحديد الأهداف، إعادة تصميم العمليات، التطبيق والتقييم", "شراء الأجهزة، ثم إلغاء الإجراءات دون تحليل", "رقمنة كل الوثائق أولًا دون تحديد الأولويات", "إطلاق النظام ثم تجاهل تدريب المستخدمين"], correct: 0 },
+            { q: "كيف يمكن تقييم الأثر الحقيقي للتحول من الإدارة التقليدية إلى الإلكترونية؟", options: ["بعدد الحواسيب المشتراة فقط", "بعدد الملفات التي جرى مسحها ضوئيًا فقط", "بمقارنة مؤشرات الأداء قبل التحول وبعده، مثل التكلفة والوقت والجودة ورضا المستفيدين", "بعدد الموظفين الذين يستخدمون الإنترنت فقط"], correct: 2 },
+            { q: "ما أفضل طريقة للتحقق من أن مشروع التحول الرقمي حقق أهدافه؟", options: ["مقارنة النتائج بمؤشرات أساسية محددة مسبقًا مع تقييم الجودة والتكلفة ورضا المستفيدين", "الاعتماد على انطباع المدير وحده", "عدّ الأجهزة التي تم شراؤها", "اعتبار إطلاق المنصة دليلًا كافيًا على النجاح"], correct: 0 }
+        ];
+
+        const correctMsgs = ["أحسنت! إجابة صحيحة 👏", "عمل رائع!", "ممتاز، واصل!", "إجابة موفقة!"];
+        const wrongMsgs = ["لا بأس، يمكنك التحسن!", "حاول مرة أخرى في المرة القادمة 💪", "التعلم يأتي بالمحاولة!", "واصل التعلم، أنت قادر على الأفضل!"];
+
+        let currentUser = { name: "", code: "" };
+        let activeQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 15;
+        let userAnswersHistory = [];
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('fullName').value.trim();
+            const code = document.getElementById('schoolCode').value.trim();
+            
+            if (!name || !code) return;
+
+            currentUser = { name, code };
+            startNewQuiz();
+        });
+
+        function startNewQuiz() {
+            score = 0;
+            currentIndex = 0;
+            userAnswersHistory = [];
+            
+            const easy = questionBank.slice(0, 7).sort(() => 0.5 - Math.random()).slice(0, 2);
+            const med = questionBank.slice(7, 16).sort(() => 0.5 - Math.random()).slice(0, 2);
+            const hard = questionBank.slice(16, 20).sort(() => 0.5 - Math.random()).slice(0, 1);
+            
+            activeQuestions = [...easy, ...med, ...hard].sort(() => 0.5 - Math.random());
+
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function updateProgressUI(answeredCount) {
+            // نسبة الإنجاز تزداد بـ 20% لكل سؤال مجاب عنه (0% عند البداية → 20% → 40% → 60% → 80% → 100%)
+            const pct = answeredCount * 20;
+            document.getElementById('overallProgressBar').style.width = `${pct}%`;
+            document.getElementById('overallPercentText').textContent = `${pct}%`;
+        }
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 15;
+            
+            // تحديث نسبة الإنجاز للأسئلة المكتملة سابقاً
+            updateProgressUI(currentIndex);
+
+            // إعادة ضبط شريط المؤقت التنازلي
+            const timerLine = document.getElementById('timerLineBar');
+            timerLine.style.transition = 'none';
+            timerLine.style.width = '100%';
+            
+            document.getElementById('timerBadge').textContent = timeLeft + " ثانية";
+            document.getElementById('feedbackBanner').textContent = "";
+
+            if (currentIndex >= activeQuestions.length) {
+                showResults();
+                return;
+            }
+
+            const qData = activeQuestions[currentIndex];
+            document.getElementById('questionCounter').textContent = `السؤال ${currentIndex + 1} من 5`;
+            document.getElementById('questionText').textContent = qData.q;
+
+            let optionsWithIndex = qData.options.map((opt, idx) => ({ text: opt, originalIdx: idx }));
+            optionsWithIndex.sort(() => 0.5 - Math.random());
+
+            const optionsList = document.getElementById('optionsList');
+            optionsList.innerHTML = '';
+
+            optionsWithIndex.forEach((optObj) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-card';
+                btn.textContent = optObj.text;
+                btn.onclick = () => selectAnswer(optObj.originalIdx, qData.correct, optionsList);
+                optionsList.appendChild(btn);
+            });
+
+            setTimeout(() => {
+                timerLine.style.transition = 'width 1s linear';
+            }, 50);
+
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerBadge').textContent = timeLeft + " ثانية";
+                timerLine.style.width = `${(timeLeft / 15) * 100}%`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeOut(qData.correct, optionsList);
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(selectedIdx, correctIdx, optionsContainer) {
+            clearInterval(timer);
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            const isCorrect = selectedIdx === correctIdx;
+            const currentQ = activeQuestions[currentIndex];
+
+            userAnswersHistory.push({
+                question: currentQ.q,
+                options: currentQ.options,
+                selected: selectedIdx,
+                correct: correctIdx,
+                isCorrect: isCorrect
+            });
+
+            buttons.forEach(btn => {
+                if (btn.textContent === currentQ.options[currentQ.correct]) {
+                    btn.classList.add('correct');
+                }
+                if (btn.textContent === currentQ.options[selectedIdx] && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            const msgEl = document.getElementById('feedbackBanner');
+            if (isCorrect) {
+                score++;
+                msgEl.style.color = "var(--accent-green)";
+                msgEl.textContent = correctMsgs[Math.floor(Math.random() * correctMsgs.length)];
+            } else {
+                msgEl.style.color = "var(--accent-red)";
+                msgEl.textContent = wrongMsgs[Math.floor(Math.random() * wrongMsgs.length)];
+            }
+
+            // ترفيع الإنجاز بمقدار 20% إضافية فور ختيار الإجابة
+            updateProgressUI(currentIndex + 1);
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 2500);
+        }
+
+        function handleTimeOut(correctIdx, optionsContainer) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+            const currentQ = activeQuestions[currentIndex];
+
+            userAnswersHistory.push({
+                question: currentQ.q,
+                options: currentQ.options,
+                selected: -1,
+                correct: correctIdx,
+                isCorrect: false
+            });
+
+            buttons.forEach(btn => {
+                if (btn.textContent === currentQ.options[correctIdx]) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const msgEl = document.getElementById('feedbackBanner');
+            msgEl.style.color = "var(--accent-red)";
+            msgEl.textContent = "انتهى الوقت! لا بأس، لنكمل إلى السؤال التالي";
+
+            // ترفيع الإنجاز بمقدار 20% إضافية
+            updateProgressUI(currentIndex + 1);
+
+            setTimeout(() => {
+                currentIndex++;
+                loadQuestion();
+            }, 2500);
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+
+            document.getElementById('finalScoreText').textContent = `الإجابات الصحيحة: ${score} من 5`;
+            document.getElementById('studentInfoDisplay').textContent = `الطالب: ${currentUser.name} | الرمز المدرسي: ${currentUser.code}`;
+            
+            const percentageVal = Math.round((score / 5) * 100) + "%";
+
+            saveResultSafely(currentUser.name, currentUser.code, score, 5, percentageVal);
+
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+
+            userAnswersHistory.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'review-box';
+                
+                const studentAnsText = item.selected !== -1 ? item.options[item.selected] : "لم تجب (انتهى الوقت)";
+                const correctAnsText = item.options[item.correct];
+                
+                card.innerHTML = `
+                    <div class="review-q">${index + 1}. ${item.question}</div>
+                    <div class="review-a" style="color: ${item.isCorrect ? 'var(--accent-green)' : 'var(--accent-red)'}">
+                        إجابتك: ${studentAnsText} ${item.isCorrect ? '✓' : '✗'}
+                    </div>
+                    ${!item.isCorrect ? `<div class="review-a" style="color: var(--accent-green);">الإجابة الصحيحة: ${correctAnsText}</div>` : ''}
+                `;
+                reviewContainer.appendChild(card);
+            });
+        }
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            startNewQuiz();
+        });
+    </script>
+</body>
+</html>
