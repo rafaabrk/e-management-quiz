@@ -544,7 +544,7 @@
             </form>
         </div>
 
-        <!-- شاشة لوحة النتائج (مستقلة عبر الزر) -->
+        <!-- شاشة لوحة النتائج -->
         <div id="leaderboardOnlyScreen" class="hidden">
             <div class="app-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                 <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
@@ -639,10 +639,10 @@
         const CUSTOM_WEBSITE_URL = "https://www.instagram.com/abderrafaaa/";
         document.getElementById('customLinkBtn').href = CUSTOM_WEBSITE_URL;
 
-        const SUPABASE_URL = 'https://ovbbm5om0lvobhg0euz4.supabase.co';
+        // تم تصحيح عنوان المشروع ليتطابق مع معرف مشروعك الصحيح (opajgeoskwyteyfnosjh)
+        const SUPABASE_URL = 'https://opajgeoskwyteyfnosjh.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
 
-        // التنقل لشاشة لوحة النتائج المستقلة عبر الزر
         document.getElementById('openLeaderboardBtn').addEventListener('click', () => {
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('leaderboardOnlyScreen').classList.remove('hidden');
@@ -687,7 +687,6 @@
             }
         }
 
-        // دالة جلب وترتيب المشاركين تنازلياً حسب النقاط (5 نقاط، ثم 4، ثم 3...)
         async function fetchLeaderboardInto(listElementId, statusElementId) {
             const lbListEl = document.getElementById(listElementId);
             const lbStatusEl = document.getElementById(statusElementId);
@@ -695,7 +694,6 @@
 
             try {
                 const tableName = encodeURIComponent('quiz_results');
-                // الترتيب الأساسي حسب النقاط تنازلياً (score.desc)
                 const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=full_name,score,total&order=score.desc`, {
                     method: 'GET',
                     headers: {
