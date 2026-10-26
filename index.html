@@ -10,13 +10,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            /* الوضع الداكن افتراضياً */
             --bg-dark: #070a13;
             --bg-gradient: 
-                radial-gradient(circle at 50% 30%, rgba(0, 119, 255, 0.2) 0%, transparent 60%),
-                radial-gradient(circle at 15% 85%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 85% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%);
-            --card-glass: rgba(13, 20, 38, 0.72);
+                radial-gradient(circle at 10% 20%, rgba(0, 119, 255, 0.28) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.22) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.2) 0%, transparent 60%);
+            --card-glass: rgba(13, 20, 38, 0.75);
             --card-border: rgba(255, 255, 255, 0.12);
             --card-highlight: rgba(255, 255, 255, 0.08);
             --input-glass: rgba(255, 255, 255, 0.04);
@@ -26,18 +25,18 @@
             --accent-green: #10b981;
             --accent-red: #f43f5e;
             --btn-blue: linear-gradient(135deg, #0099ff 0%, #0055ff 100%);
+            --btn-secondary: rgba(255, 255, 255, 0.08);
             --shadow-glow: 0 30px 60px rgba(0, 0, 0, 0.65);
             --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* الوضع الفاتح الشفاف الشبيه بـ iOS Glassmorphism */
         [data-theme="light"] {
             --bg-dark: #edf6ff;
             --bg-gradient: 
-                radial-gradient(circle at 50% 30%, rgba(56, 189, 248, 0.25) 0%, transparent 60%),
-                radial-gradient(circle at 85% 85%, rgba(192, 132, 252, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.8) 0%, transparent 50%);
-            --card-glass: rgba(255, 255, 255, 0.75);
+                radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.35) 0%, transparent 55%),
+                radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.28) 0%, transparent 55%),
+                radial-gradient(circle at 50% 50%, rgba(2, 132, 199, 0.2) 0%, transparent 60%);
+            --card-glass: rgba(255, 255, 255, 0.78);
             --card-border: rgba(255, 255, 255, 0.9);
             --card-highlight: rgba(255, 255, 255, 0.5);
             --input-glass: rgba(255, 255, 255, 0.8);
@@ -47,6 +46,7 @@
             --accent-green: #059669;
             --accent-red: #dc2626;
             --btn-blue: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            --btn-secondary: rgba(2, 132, 199, 0.1);
             --shadow-glow: 0 20px 50px rgba(2, 132, 199, 0.18);
         }
 
@@ -61,8 +61,8 @@
             min-height: 100vh;
             background-color: var(--bg-dark);
             background-image: var(--bg-gradient);
-            background-size: 150% 150%;
-            animation: pulseGradients 14s ease-in-out infinite alternate;
+            background-size: 250% 250%;
+            animation: moveGlassBackground 35s ease infinite alternate;
             color: var(--text-white);
             display: flex;
             flex-direction: column;
@@ -70,12 +70,13 @@
             align-items: center;
             padding: 20px;
             overflow-x: hidden;
-            transition: background 0.5s ease, color 0.5s ease;
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        @keyframes pulseGradients {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
+        @keyframes moveGlassBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 50% 100%; }
         }
 
         header {
@@ -141,7 +142,6 @@
             transform: scale(1.08);
         }
 
-        /* البطاقة الزجاجية الغنية */
         .glass-card {
             width: 100%;
             max-width: 600px;
@@ -157,23 +157,6 @@
             position: relative;
             overflow: hidden;
             transition: var(--transition);
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -50%;
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(
-                115deg,
-                transparent 0%,
-                rgba(255, 255, 255, 0.03) 45%,
-                rgba(255, 255, 255, 0.08) 50%,
-                transparent 55%
-            );
-            pointer-events: none;
         }
 
         .app-icon-box {
@@ -283,7 +266,30 @@
             box-shadow: 0 18px 36px rgba(0, 102, 255, 0.5);
         }
 
-        /* --- شريط مؤشر الإنجاز (20% لكل سؤال) --- */
+        .btn-secondary {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            background: var(--btn-secondary);
+            border: 1px solid var(--card-border);
+            color: var(--text-white);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
         .overall-progress-wrapper {
             margin-bottom: 20px;
             text-align: right;
@@ -316,7 +322,6 @@
             box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
         }
 
-        /* --- شريط مؤقت السؤال المتناقص --- */
         .timer-line-track {
             width: 100%;
             height: 6px;
@@ -396,18 +401,10 @@
             color: #10b981 !important;
         }
 
-        [data-theme="dark"] .option-card.correct {
-            color: #6ee7b7 !important;
-        }
-
         .option-card.wrong {
             background: rgba(244, 63, 94, 0.25) !important;
             border-color: #f43f5e !important;
             color: #f43f5e !important;
-        }
-
-        [data-theme="dark"] .option-card.wrong {
-            color: #fca5a5 !important;
         }
 
         .feedback-banner {
@@ -438,6 +435,61 @@
             font-size: 14px;
             margin: 4px 0;
             font-weight: 600;
+        }
+
+        .leaderboard-section {
+            margin-top: 25px;
+            text-align: right;
+            background: var(--input-glass);
+            border: 1px solid var(--input-border);
+            border-radius: 20px;
+            padding: 20px;
+        }
+
+        .leaderboard-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .leaderboard-list {
+            max-height: 220px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-left: 5px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .score-badge-5 { background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.4); color: #34d399; }
+        .score-badge-4 { background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; }
+        .score-badge-other { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: var(--text-muted); }
+
+        .lb-user-name {
+            font-weight: 700;
+        }
+
+        .lb-score-tag {
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 13px;
         }
 
         .hidden { display: none !important; }
@@ -488,12 +540,31 @@
                 </div>
 
                 <button type="submit" class="btn-submit">ابدأ الاختبار الآن ←</button>
+                <button type="button" class="btn-secondary" id="openLeaderboardBtn">🏆 عرض لوحة النتائج والتقاط النقاط</button>
             </form>
+        </div>
+
+        <!-- شاشة لوحة النتائج (مستقلة عبر الزر) -->
+        <div id="leaderboardOnlyScreen" class="hidden">
+            <div class="app-icon-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+            </div>
+            <h1>نتائج المشاركين حسب النقاط 🏅</h1>
+            <p class="desc">تصنيف المشاركين تنازلياً من النقاط الأعلى (5 نقاط) فما دون.</p>
+            
+            <div class="leaderboard-section" style="margin-top: 0;">
+                <div class="leaderboard-title">
+                    <span>قائمة النقاط المسجلة</span>
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lbStandaloneStatus">جاري التحميل...</span>
+                </div>
+                <div class="leaderboard-list" id="leaderboardStandaloneList"></div>
+            </div>
+
+            <button class="btn-secondary" id="backToHomeBtn" style="margin-top: 20px;">← عودة إلى الصفحة الرئيسية</button>
         </div>
 
         <!-- شاشة الأسئلة -->
         <div id="quizScreen" class="hidden">
-            <!-- شريط إنجاز المسابقة (0% إلى 100%) -->
             <div class="overall-progress-wrapper">
                 <div class="overall-progress-title">
                     <span>نسبة الإنجاز</span>
@@ -504,14 +575,13 @@
                 </div>
             </div>
 
-            <!-- شريط مؤقت السؤال المتناقص -->
             <div class="timer-line-track">
                 <div class="timer-line-fill" id="timerLineBar"></div>
             </div>
             
             <div class="quiz-meta">
                 <span id="questionCounter">السؤال 1 من 5</span>
-                <div class="timer-badge" id="timerBadge">15 ثانية</div>
+                <div class="timer-badge" id="timerBadge">20 ثانية</div>
             </div>
             
             <div class="question-title" id="questionText">نص السؤال هنا...</div>
@@ -531,9 +601,17 @@
                 <h3 id="finalScoreText" style="font-size: 26px; color: #38bdf8; margin-bottom: 6px;">الإجابات الصحيحة: 5 / 5</h3>
                 <p id="studentInfoDisplay" style="color: var(--text-muted); font-size: 14px; font-weight: 600;"></p>
             </div>
+
+            <div class="leaderboard-section">
+                <div class="leaderboard-title">
+                    <span>🏆 ترتيب النقاط العام</span>
+                    <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;" id="lbResultStatus">جاري التحميل...</span>
+                </div>
+                <div class="leaderboard-list" id="leaderboardResultList"></div>
+            </div>
             
-            <h3 style="margin-bottom: 15px; font-size: 17px; text-align: right;">مراجعة الأسئلة:</h3>
-            <div id="reviewContainer" style="max-height: 280px; overflow-y: auto; padding-left: 5px; margin-bottom: 25px;"></div>
+            <h3 style="margin: 20px 0 15px 0; font-size: 17px; text-align: right;">مراجعة الأسئلة:</h3>
+            <div id="reviewContainer" style="max-height: 220px; overflow-y: auto; padding-left: 5px; margin-bottom: 25px;"></div>
             
             <button class="btn-submit" id="restartBtn">إعادة الاختبار 🔄</button>
         </div>
@@ -543,7 +621,6 @@
     <footer>Made by Abderrafaa Dahmen 2026</footer>
 
     <script>
-        // --- إدارة المظهر (Dark / Light Mode) ---
         const themeToggle = document.getElementById('themeToggle');
         const htmlEl = document.documentElement;
 
@@ -559,18 +636,29 @@
             themeToggle.textContent = next === 'dark' ? '☀️' : '🌙';
         });
 
-        // --- إعدادات الرابط المخصص والربط بقاعدة البيانات الصحيحة ---
         const CUSTOM_WEBSITE_URL = "https://www.instagram.com/abderrafaaa/";
         document.getElementById('customLinkBtn').href = CUSTOM_WEBSITE_URL;
 
-        const SUPABASE_URL = 'https://opajgeoskwyteyfnosjh.supabase.co';
+        const SUPABASE_URL = 'https://ovbbm5om0lvobhg0euz4.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_oVbbM5oM0LvObHG0euZ4yw_seiBpAWM';
 
-        // دالة حفظ النتيجة باستخدام الـ REST API المباشر والرابط الصحيح
+        // التنقل لشاشة لوحة النتائج المستقلة عبر الزر
+        document.getElementById('openLeaderboardBtn').addEventListener('click', () => {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('leaderboardOnlyScreen').classList.remove('hidden');
+            fetchLeaderboardInto('leaderboardStandaloneList', 'lbStandaloneStatus');
+        });
+
+        document.getElementById('backToHomeBtn').addEventListener('click', () => {
+            document.getElementById('leaderboardOnlyScreen').classList.add('hidden');
+            document.getElementById('welcomeScreen').classList.remove('hidden');
+        });
+
         async function saveResultSafely(fullName, schoolCode, score, total, percentage) {
             console.log('🔄 جاري إرسال النتيجة إلى Supabase...', { fullName, schoolCode, score, total, percentage });
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/quiz_results`, {
+                const tableName = encodeURIComponent('quiz_results');
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -592,15 +680,68 @@
                     console.error('❌ خطأ من Supabase:', response.status, errText);
                 } else {
                     console.log('✅ تم حفظ النتيجة في Supabase بنجاح تام!');
+                    fetchLeaderboardInto('leaderboardResultList', 'lbResultStatus');
                 }
             } catch (err) {
                 console.error('❌ خطأ في الشبكة أو الاتصال أثناء الحفظ:', err);
             }
         }
 
-        // --- بنك الأسئلة المعتمد (20 سؤالاً) ---
+        // دالة جلب وترتيب المشاركين تنازلياً حسب النقاط (5 نقاط، ثم 4، ثم 3...)
+        async function fetchLeaderboardInto(listElementId, statusElementId) {
+            const lbListEl = document.getElementById(listElementId);
+            const lbStatusEl = document.getElementById(statusElementId);
+            lbListEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">جاري تحديث النتائج...</div>';
+
+            try {
+                const tableName = encodeURIComponent('quiz_results');
+                // الترتيب الأساسي حسب النقاط تنازلياً (score.desc)
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/${tableName}?select=full_name,score,total&order=score.desc`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('فشل جلب النتائج');
+                }
+
+                const data = await response.json();
+                lbListEl.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    lbListEl.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">لا توجد نقاط مسجلة بعد</div>';
+                    lbStatusEl.textContent = '';
+                    return;
+                }
+
+                lbStatusEl.textContent = `إجمالي المشاركين: (${data.length})`;
+
+                data.forEach((item) => {
+                    const scoreVal = item.score !== undefined ? item.score : 0;
+                    let badgeClass = 'score-badge-other';
+                    if (scoreVal === 5) badgeClass = 'score-badge-5';
+                    else if (scoreVal === 4) badgeClass = 'score-badge-4';
+
+                    const row = document.createElement('div');
+                    row.className = 'leaderboard-item';
+                    row.innerHTML = `
+                        <div class="lb-user-name">👤 ${item.full_name}</div>
+                        <div class="lb-score-tag ${badgeClass}">${scoreVal} / ${item.total || 5} نقاط</div>
+                    `;
+                    lbListEl.appendChild(row);
+                });
+
+            } catch (err) {
+                console.error('❌ خطأ في جلب لوحة النتائج:', err);
+                lbListEl.innerHTML = '<div style="text-align: center; color: var(--accent-red); padding: 10px;">تعذر تحميل النتائج</div>';
+                lbStatusEl.textContent = '';
+            }
+        }
+
         const questionBank = [
-            // السهلة (7)
             { q: "ما المقصود بالإدارة الإلكترونية؟", options: ["الاعتماد على الأوراق في جميع المعاملات", "استخدام تكنولوجيا المعلومات والاتصالات لإنجاز الأعمال الإدارية", "إلغاء جميع الوظائف الإدارية", "استبدال المديرين بالأجهزة"], correct: 1 },
             { q: "ما السمة الأكثر ارتباطًا بالإدارة التقليدية؟", options: ["الخدمات الرقمية", "التوقيع الإلكتروني", "الاعتماد الكبير على الوثائق الورقية", "المعالجة الآلية للبيانات"], correct: 2 },
             { q: "ما الهدف الأساسي من التحول نحو الإدارة الإلكترونية؟", options: ["زيادة الإجراءات البيروقراطية", "تسريع الخدمات وتحسين الكفاءة", "زيادة استهلاك الورق", "تقليل الوصول إلى المعلومات"], correct: 1 },
@@ -608,7 +749,6 @@
             { q: "ما إحدى النتائج المتوقعة من تقليل المعاملات الورقية؟", options: ["زيادة مدة معالجة الطلبات", "زيادة الاعتماد على النقل اليدوي", "إلغاء الحاجة إلى تنظيم المعلومات", "تقليل استهلاك الورق وتسهيل الوصول إلى الوثائق"], correct: 3 },
             { q: "ما الوسيلة الأكثر ارتباطًا بحفظ الملفات في الإدارة التقليدية؟", options: ["الحوسبة السحابية", "الأرشيف الورقي", "قاعدة البيانات الإلكترونية", "البوابة الرقمية"], correct: 1 },
             { q: "ما الفائدة الأساسية من الأرشفة الإلكترونية؟", options: ["زيادة مساحة التخزين الورقي", "صعوبة البحث عن الوثائق", "تكرار إدخال المعلومات", "تسهيل حفظ الوثائق والبحث عنها واسترجاعها"], correct: 3 },
-            // المتوسطة (9)
             { q: "أي عامل يُعد من أهم متطلبات نجاح التحول إلى الإدارة الإلكترونية؟", options: ["التمسك بالإجراءات القديمة مهما كانت", "تكوين الموظفين وتطوير البنية التكنولوجية", "منع تبادل البيانات بين المصالح", "الاستغناء عن التخطيط الإداري"], correct: 1 },
             { q: "ما أحد أبرز التحديات التي تواجه تطبيق الإدارة الإلكترونية؟", options: ["انخفاض الحاجة إلى الورق", "سهولة الوصول إلى البيانات دائمًا", "اختفاء جميع الأخطاء الإدارية تلقائيًا", "مخاطر الأمن السيبراني ومقاومة التغيير"], correct: 3 },
             { q: "كيف يمكن للإدارة الإلكترونية أن تدعم الشفافية؟", options: ["بتوثيق المعاملات وإتاحة تتبع مراحلها للمخولين", "بإخفاء حالة الطلبات عن أصحابها", "بالاعتماد على القرارات الشفهية فقط", "بحذف سجلات العمليات"], correct: 0 },
@@ -618,7 +758,6 @@
             { q: "كيف تساعد الإدارة الإلكترونية على تقليل البيروقراطية؟", options: ["بزيادة عدد الموافقات الورقية", "بإضافة مراحل إدارية غير ضرورية", "بتبسيط الإجراءات وأتمتة بعض المهام", "بمنع تقديم الطلبات عن بعد"], correct: 2 },
             { q: "لماذا يُعد تدريب الموظفين مهمًا عند تطبيق الإدارة الإلكترونية؟", options: ["لزيادة الاعتماد على الورق", "لإلغاء الرقابة على العمل", "لتجنب استخدام النظام الجديد", "لتمكينهم من استخدام الأدوات الرقمية وتكييف أساليب عملهم"], correct: 3 },
             { q: "ما الخطر الناتج عن ضعف جودة البيانات في النظام الإلكتروني؟", options: ["تحسين دقة التقارير تلقائيًا", "اتخاذ قرارات غير دقيقة بسبب معلومات خاطئة أو ناقصة", "زيادة موثوقية جميع السجلات", "اختفاء الحاجة إلى المراجعة"], correct: 1 },
-            // الصعبة (4)
             { q: "كيف ينبغي التعامل مع نظام إداري إلكتروني جديد يحتوي على بيانات شخصية حساسة؟", options: ["إتاحة جميع البيانات لجميع الموظفين", "تعطيل كلمات المرور لتسريع العمل", "تطبيق صلاحيات وصول محددة وتشفير البيانات ونسخها احتياطيًا", "نشر البيانات لتسهيل الشفافية"], correct: 2 },
             { q: "أي تسلسل يعكس منهجية أكثر منطقية للتحول نحو الإدارة الإلكترونية؟", options: ["تشخيص الوضع الحالي، تحديد الأهداف، إعادة تصميم العمليات، التطبيق والتقييم", "شراء الأجهزة، ثم إلغاء الإجراءات دون تحليل", "رقمنة كل الوثائق أولًا دون تحديد الأولويات", "إطلاق النظام ثم تجاهل تدريب المستخدمين"], correct: 0 },
             { q: "كيف يمكن تقييم الأثر الحقيقي للتحول من الإدارة التقليدية إلى الإلكترونية؟", options: ["بعدد الحواسيب المشتراة فقط", "بعدد الملفات التي جرى مسحها ضوئيًا فقط", "بمقارنة مؤشرات الأداء قبل التحول وبعده، مثل التكلفة والوقت والجودة ورضا المستفيدين", "بعدد الموظفين الذين يستخدمون الإنترنت فقط"], correct: 2 },
@@ -633,7 +772,7 @@
         let currentIndex = 0;
         let score = 0;
         let timer = null;
-        let timeLeft = 15;
+        let timeLeft = 20;
         let userAnswersHistory = [];
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -659,6 +798,7 @@
             activeQuestions = [...easy, ...med, ...hard].sort(() => 0.5 - Math.random());
 
             document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('leaderboardOnlyScreen').classList.add('hidden');
             document.getElementById('resultScreen').classList.add('hidden');
             document.getElementById('quizScreen').classList.remove('hidden');
 
@@ -673,7 +813,7 @@
 
         function loadQuestion() {
             clearInterval(timer);
-            timeLeft = 15;
+            timeLeft = 20;
             
             updateProgressUI(currentIndex);
 
@@ -714,7 +854,7 @@
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('timerBadge').textContent = timeLeft + " ثانية";
-                timerLine.style.width = `${(timeLeft / 15) * 100}%`;
+                timerLine.style.width = `${(timeLeft / 20) * 100}%`;
 
                 if (timeLeft <= 0) {
                     clearInterval(timer);
